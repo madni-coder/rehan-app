@@ -133,13 +133,19 @@ footer {
     font-size: 0.95rem;
 }
 
+.quick-actions-container {
+    overflow: visible;
+    position: relative;
+    padding-bottom: 12rem;
+}
+
 .quick-actions-grid {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.75rem;
     flex-wrap: nowrap;
-    overflow-x: auto;
+    overflow: visible;
     padding: 0.25rem 0.5rem;
 }
 
@@ -431,13 +437,13 @@ textarea.message-input {
 
 .call-dropdown {
     position: absolute;
-    top: calc(100% + 0.4rem);
+    top: calc(100% + 0.5rem);
     left: 50%;
     transform: translateX(-50%);
     min-width: 160px;
     border-radius: 0.5rem;
     overflow: hidden;
-    z-index: 40;
+    z-index: 50;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;

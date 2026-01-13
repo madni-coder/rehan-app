@@ -42,6 +42,7 @@ function App() {
 
     const [chatId, setChatId] = useState(null);
     const [isCreatingChat, setIsCreatingChat] = useState(false);
+    const dropdownRef = useRef(null);
 
     const orderedMessages = useMemo(() => messages, [messages]);
 
@@ -91,6 +92,26 @@ function App() {
         }
     }, [latestMessage]);
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
+                setShowCallDropdown(false);
+            }
+        };
+
+        if (showCallDropdown) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showCallDropdown]);
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const roomFromUrl = params.get("room");
@@ -100,26 +121,11 @@ function App() {
             return;
         }
 
-        const createChat = async () => {
-            setIsCreatingChat(true);
-            try {
-                const res = await fetch(`${BACKEND_URL}/chat`, {
-                    method: "POST",
-                });
-                const data = await res.json();
-                if (data?.chatId) {
-                    setChatId(data.chatId);
-                    const newUrl = `${window.location.origin}${window.location.pathname}?room=${data.chatId}`;
-                    window.history.replaceState({}, "", newUrl);
-                }
-            } catch (err) {
-                console.error("Failed to create chat", err);
-            } finally {
-                setIsCreatingChat(false);
-            }
-        };
-
-        createChat();
+        // Default to room "1" when no room is provided in URL
+        const defaultRoom = "1";
+        setChatId(defaultRoom);
+        const newUrl = `${window.location.origin}${window.location.pathname}?room=${defaultRoom}`;
+        window.history.replaceState({}, "", newUrl);
     }, []);
 
     const pushMessage = (text, isSent = true, status = "Sent") => {
@@ -245,7 +251,10 @@ function App() {
                 </header>
 
                 <section className="flex flex-col gap-4 ">
-                    <div className="quick-actions-container">
+                    <div
+                        className="quick-actions-container"
+                        style={{ overflow: "visible" }}
+                    >
                         <div className="quick-actions-grid">
                             {quickActions.map(
                                 ({ label, color, icon: Icon, action }) => {
@@ -254,6 +263,11 @@ function App() {
                                             <div
                                                 key={label}
                                                 className="relative block w-full"
+                                                ref={dropdownRef}
+                                                style={{
+                                                    position: "relative",
+                                                    overflow: "visible",
+                                                }}
                                             >
                                                 <button
                                                     className={`${color} action-button w-full`}
