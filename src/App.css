@@ -503,6 +503,26 @@ textarea.message-input {
     max-width: 100%;
 }
 
+/* Give the newest (latest) message extra separation from older messages */
+.messages-list .latest-message {
+    margin-bottom: 2.25rem; /* larger gap after the newest message */
+}
+
+/* Visually de-emphasize older messages so the latest stands out */
+
+
+.messages-list .message-card:not(.latest-message) .message-text {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 600;
+}
+
+
+
+/* Keep latest message fully prominent */
+.messages-list .latest-message .message-text {
+    color: #ffffff;
+}
+
 .message-text {
     overflow-wrap: anywhere; /* break long words/URLs */
     word-break: break-word;
@@ -552,14 +572,7 @@ textarea.message-input {
 }
 
 /* Sent messages - default (non-latest) styling */
-.sent-message {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.04),
-        rgba(255, 255, 255, 0.02)
-    );
-    border-color: rgba(255, 255, 255, 0.06);
-}
+
 
 .sent-message .message-sender {
     color: rgba(255, 255, 255, 0.9);

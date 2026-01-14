@@ -81,16 +81,54 @@ function App() {
             if (data.type === "message" && data.message) {
                 const m = data.message;
                 if (m.isFinal) {
-                    setMessages((prev) => [
-                        {
-                            id: m.id || Date.now(),
-                            text: m.text,
-                            sender: "Patient",
-                            time: m.timestamp || "",
-                            isSent: false,
-                        },
-                        ...prev,
-                    ]);
+                    setMessages((prev) => {
+                        const incomingId = m.id || null;
+                        const incomingText = (m.text || "").trim();
+                        const incomingTime = m.timestamp || "";
+
+                        const normalize = (s) =>
+                            (s || "")
+                                .toString()
+                                .trim()
+                                .replace(/\s+/g, " ")
+                                .toLowerCase();
+
+                        const exists = prev.some((pm) => {
+                            // match by server id when available
+                            if (incomingId && pm.id === incomingId) return true;
+
+                            // If a client-sent message with the same text already exists,
+                            // treat the incoming server echo as duplicate.
+                            if (
+                                pm.isSent &&
+                                normalize(pm.text) === normalize(incomingText)
+                            )
+                                return true;
+
+                            // fallback: match by exact text+time
+                            if (
+                                normalize(pm.text) ===
+                                    normalize(incomingText) &&
+                                pm.time === incomingTime
+                            )
+                                return true;
+
+                            return false;
+                        });
+
+                        if (exists) return prev;
+
+                        return [
+                            {
+                                id: incomingId || Date.now(),
+                                text: incomingText,
+                                sender: "Patient",
+                                time: incomingTime,
+                                isSent: false,
+                            },
+                            ...prev,
+                        ];
+                    });
                 }
             }
         } catch (err) {
@@ -323,8 +361,13 @@ function App() {
                                                                     type="button"
                                                                     className="call-option"
                                                                     onClick={() => {
+                                                                        const text = `${name} Ko Bulao`;
                                                                         pushMessage(
-                                                                            `${name} Ko Bulao`
+                                                                            text
+                                                                        );
+                                                                        sendToBackend(
+                                                                            text,
+                                                                            true
                                                                         );
                                                                         setShowCallDropdown(
                                                                             false
